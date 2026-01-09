@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interactief financieel plan</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        referrerpolicy="no-referrer" />
+</head>
+
+<body>
+  <header class="wrap">
+    <div class="topbar">
+      <div>
+        <h1><i class="fa-solid fa-chart-line"></i> Interactief financieel plan</h1>
+        <p class="muted"><i class="fa-solid fa-bolt"></i> Alles lokaal, geen backend. Alles is auto & live.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn" id="resetBtn" type="button">
+          <i class="fa-solid fa-rotate-left"></i> Reset (Excel defaults)
+        </button>
+        <button class="btn" id="copyLinkBtn" type="button" title="Copy shareable link">
+          <i class="fa-solid fa-link"></i> Copy link
+        </button>
+        <button class="btn" id="exportCsvBtn" type="button" title="Export scenario as CSV">
+          <i class="fa-solid fa-file-export"></i> Export CSV
+        </button>
+        <span id="copyStatus" class="muted" style="margin-left:8px; font-size:12px;"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap grid">
+    <!-- INPUTS -->
+    <section class="card">
+      <div class="cardTitle">
+        <h2><i class="fa-solid fa-sliders"></i> Inputs</h2>
+        <span class="muted">Wijzig → live update</span>
+      </div>
+
+      <div class="group">
+        <div class="groupTitle"><i class="fa-solid fa-gear"></i> Algemeen</div>
+        <div class="controls">
+          <div class="field">
+            <label><i class="fa-regular fa-calendar"></i> Horizon (jaren)</label>
+            <input type="number" min="1" max="60" step="1" data-path="horizonYears">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-wallet"></i> Maandbudget (lening + sparen) (€ / maand)</label>
+            <input type="number" min="0" step="10" data-path="monthlyBudget">
+          </div>
+        </div>
+        <div class="hint">
+          Dit budget wordt automatisch verdeeld: leningbetaling eerst, overschot gaat naar sparen.
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="groupTitle"><i class="fa-solid fa-piggy-bank"></i> Spaargeld</div>
+        <div class="controls">
+          <div class="field">
+            <label><i class="fa-solid fa-wallet"></i> Huidig spaargeld (€)</label>
+            <input type="number" min="0" step="50" data-path="cash.now">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-shield-heart"></i> % apart houden (0.15 = 15%)</label>
+            <input type="number" min="0" max="1" step="0.01" data-path="cash.setAsidePct">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-percent"></i> Rendement spaarrekening (% / jaar)</label>
+            <input type="number" min="0" max="15" step="0.1" data-path="saving.annualRatePct">
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="groupTitle"><i class="fa-solid fa-building"></i> Vastgoed</div>
+        <div class="controls">
+          <div class="field">
+            <label><i class="fa-solid fa-tag"></i> Aankoopprijs appartement (€)</label>
+            <input type="number" min="0" step="1000" data-path="realEstate.price">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-file-invoice-dollar"></i> Aankoopkosten (% van prijs, 0.10 = 10%)</label>
+            <input type="number" min="0" max="0.5" step="0.01" data-path="realEstatePurchaseCostPct">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-arrow-trend-up"></i> Waardestijging vastgoed (% / jaar)</label>
+            <input type="number" min="0" max="20" step="0.1" data-path="realEstate.annualGrowthPct">
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="groupTitle"><i class="fa-solid fa-file-invoice-dollar"></i> Lening</div>
+        <div class="controls">
+          <div class="field">
+            <label><i class="fa-solid fa-percent"></i> Rente lening (% / jaar)</label>
+            <input type="number" min="0" max="15" step="0.1" data-path="loan.annualRatePct">
+          </div>
+          <div class="field">
+            <label><i class="fa-regular fa-clock"></i> Looptijd lening (jaren)</label>
+            <input type="number" min="1" max="40" step="1" data-path="loan.years">
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="groupTitle"><i class="fa-solid fa-key"></i> Verhuur</div>
+        <div class="controls">
+          <div class="field">
+            <label><i class="fa-solid fa-toggle-on"></i> Verhuur inschakelen</label>
+            <div class="row">
+              <input type="checkbox" data-path="rent.enabled">
+              <span class="muted">Enabled</span>
+            </div>
+          </div>
+          <div class="field">
+            <label><i class="fa-regular fa-calendar-plus"></i> Start verhuren na (jaren)</label>
+            <input type="number" min="0" step="1" data-path="rent.startAfterYears">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-euro-sign"></i> Huurprijs (€ / maand)</label>
+            <input type="number" min="0" step="10" data-path="rent.monthlyRent">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-house-circle-xmark"></i> Leegstand (0.25 = 25%)</label>
+            <input type="number" min="0" max="1" step="0.01" data-path="rent.vacancyRate">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-fire-extinguisher"></i> Brandverzekering (0.10 = 10%)</label>
+            <input type="number" min="0" max="1" step="0.01" data-path="rent.insuranceRate">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-receipt"></i> Onroerende voorheffing (0.10 = 10%)</label>
+            <input type="number" min="0" max="1" step="0.01" data-path="rent.taxRate">
+          </div>
+          <div class="field">
+            <label><i class="fa-solid fa-screwdriver-wrench"></i> Onderhoud (0.20 = 20%)</label>
+            <input type="number" min="0" max="1" step="0.01" data-path="rent.maintenanceRate">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUTPUTS -->
+    <aside class="card">
+      <div class="cardTitle">
+        <h2><i class="fa-solid fa-gauge-high"></i> Resultaten</h2>
+        <span class="muted" id="subtitle"></span>
+      </div>
+
+      <div class="kpis">
+        <!-- Startkapitaal -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">💰 Startkapitaal</div>
+          <div class="kpi"><div class="muted">Apart gezet</div><div class="kpiV" id="kpiSetAside"></div></div>
+          <div class="kpi"><div class="muted">Investeerbaar (nu)</div><div class="kpiV" id="kpiInvestable"></div></div>
+        </div>
+
+        <!-- Vastgoedaankoop -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">🏠 Vastgoedaankoop</div>
+          <div class="kpi"><div class="muted">Inbreng (auto)</div><div class="kpiV" id="kpiDownPayment"></div></div>
+          <div class="kpi"><div class="muted">Leningbedrag (auto)</div><div class="kpiV" id="kpiPrincipal"></div></div>
+          <div class="kpi">
+            <div class="muted">Aankoopkosten</div>
+            <div>
+              <div class="kpiV" id="kpiPurchaseCosts"></div>
+              <div class="kpiPct muted" id="kpiPurchaseCostsPct"></div>
+            </div>
+          </div>
+          <div class="kpi"><div class="muted">Totale aankoop</div><div class="kpiV" id="kpiTotalPurchase"></div></div>
+        </div>
+
+        <!-- Maandbudget & Lening -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">📊 Maandbudget & Lening</div>
+          <div class="kpi"><div class="muted">Maandbudget</div><div class="kpiV" id="kpiMonthlyBudget"></div></div>
+          <div class="kpi"><div class="muted">Lening afbetaling/maand</div><div class="kpiV" id="kpiLoanMonthly"></div></div>
+          <div class="kpi"><div class="muted">Overschot → sparen/maand</div><div class="kpiV" id="kpiExtraSaved"></div></div>
+          <div class="kpi"><div class="muted">Totaal sparen/maand</div><div class="kpiV" id="kpiTotalMonthlySaving"></div></div>
+        </div>
+
+        <!-- Na horizon (25 jaar) -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">📈 Na horizon</div>
+          <div class="kpi"><div class="muted">Sparen</div><div class="kpiV" id="kpiSaving"></div></div>
+          <div class="kpi"><div class="muted">Vastgoedwaarde</div><div class="kpiV" id="kpiRE"></div></div>
+          <div class="kpi"><div class="muted">Leningrest</div><div class="kpiV" id="kpiLoanBalance"></div></div>
+          <div class="kpi"><div class="muted">Netto equity</div><div class="kpiV" id="kpiEquity"></div></div>
+        </div>
+
+        <!-- Verhuur -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">🏘️ Verhuur (na horizon)</div>
+          <div class="kpi"><div class="muted">Netto verhuur/maand</div><div class="kpiV" id="kpiRentNetMonthly"></div></div>
+          <div class="kpi"><div class="muted">Verhuur winst (horizon)</div><div class="kpiV" id="kpiRentProfit"></div></div>
+        </div>
+
+        <!-- Totaal Vermogen -->
+        <div class="kpi" style="grid-column:1 / -1; background:rgba(124,92,255,.12); border-color:rgba(124,92,255,.4);">
+          <div class="muted"><strong>💎 TOTAAL VERMOGEN</strong></div>
+          <div class="kpiV" id="kpiTotalWealth"></div>
+          <div class="muted" style="font-size:11px; margin-top:4px;">Sparen + Equity + Huurwinst</div>
+        </div>
+      </div>
+
+      <div class="chart" id="chart"></div>
+    </aside>
+  </main>
+
+  <!-- COMPARISON SECTION -->
+  <section class="wrap">
+    <div class="card">
+      <div class="cardTitle">
+        <h2><i class="fa-solid fa-code-compare"></i> Scenario's vergelijken</h2>
+        <span class="muted">Vastgoed vs. Enkel sparen</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+        <!-- Savings-only scenario -->
+        <div>
+          <div class="kpi" style="background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.3);">
+            <div class="muted"><strong>📊 Scenario 1: Enkel sparen</strong></div>
+            <div class="muted" style="font-size:11px; margin-bottom:8px; opacity:.7;">Geen vastgoed, volledig budget → spaarrekening</div>
+            <div class="kpiV" id="savingsOnlyTotal"></div>
+          </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div>
+          <div class="kpi" style="background:rgba(124,92,255,.12); border-color:rgba(124,92,255,.4);">
+            <div class="muted"><strong>🎯 Welke is beter?</strong></div>
+            <div id="scenarioComparison" style="font-size:12px; margin-top:8px; line-height:1.6; color:rgba(233,236,255,.85);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div style="margin-top:20px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+          <div>
+            <h3 style="font-size:13px; margin:0 0 12px 0; color:rgba(233,236,255,.7);">📈 Met huurinkomsten</h3>
+            <div class="compare-grid" id="chartWithRent"></div>
+          </div>
+
+          <div>
+            <h3 style="font-size:13px; margin:0 0 12px 0; color:rgba(233,236,255,.7);">📊 Zonder huurinkomsten (puur belegging)</h3>
+            <div class="compare-grid" id="chartWithoutRent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE SECTION -->
+  <section class="wrap">
+    <div class="card">
+      <div class="cardTitle">
+        <h2><i class="fa-solid fa-chart-line"></i> Tijdslijn: Wanneer is vastgoed beter?</h2>
+        <span class="muted">Vermogen door de jaren heen</span>
+      </div>
+
+      <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+        <label style="display:flex; gap:8px; align-items:center; font-size:13px;">
+          <input type="checkbox" id="showBreakEven" checked> Toon breakeven-markers
+        </label>
+        <button class="btn" id="toggleTimelineTable">Toon jaartabel</button>
+        <button class="btn" id="downloadTimelineCsv">Download timeline (CSV)</button>
+      </div>
+
+      <div style="margin-bottom:16px; position:relative;">
+        <canvas id="timelineChart" width="800" height="350" style="max-width:100%; border-radius:12px;"></canvas>
+        <div id="timelineTooltip" class="tooltip" style="display:none;"></div>
+      </div> 
+
+      <div id="timelineBreakdown" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; font-size:12px;">
+      </div>
+
+      <div id="timelineTableWrapper" style="display:none; margin-top:12px;">
+        <div class="card" style="padding:10px;">
+          <div style="overflow:auto; max-height:320px;">
+            <table id="timelineTable" style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr style="text-align:left; color:var(--muted); font-size:12px;">
+                  <th>Jaar</th>
+                  <th>Vastgoed (met huur)</th>
+                  <th>Vastgoed (geen huur)</th>
+                  <th>Enkel sparen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CASHFLOW & AMORTISATIE -->
+  <section class="wrap">
+    <div class="card">
+      <div class="cardTitle">
+        <h2><i class="fa-solid fa-wallet"></i> Cashflow & Amortisatie</h2>
+        <span class="muted">Jaarlijkse samenvatting</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr; gap:16px;">
+        <div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+            <strong style="font-size:13px;">Jaarlijkse cashflow</strong>
+            <button class="btn" id="exportCashflowCsv">Export CSV</button>
+          </div>
+          <div style="overflow:auto; max-height:320px;">
+            <table id="cashflowTable" style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr style="text-align:left; color:var(--muted); font-size:12px;">
+                  <th>Jaar</th>
+                  <th>Huur bruto</th>
+                  <th>Netto huur</th>
+                  <th>Lening (jr)</th>
+                  <th>Netto cashflow</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+            <strong style="font-size:13px;">Amortisatie (jaarlijks)</strong>
+            <div style="display:flex; gap:8px; align-items:center; margin-left:8px;">
+              <button class="btn" id="exportAmortCsv">Export CSV</button>
+              <button class="btn" id="toggleExpandAmort" aria-pressed="false" type="button">Uitklappen alles</button>
+            </div>
+          </div>
+          <div style="overflow:auto; max-height:320px;">
+            <table id="amortTable" style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr style="text-align:left; color:var(--muted); font-size:12px;">
+                  <th>Jaar</th>
+                  <th>Startsaldo</th>
+                  <th>Betaald (jr)</th>
+                  <th>Rente (jr)</th>
+                  <th>Kapitaal (jr)</th>
+                  <th>Eindsaldo</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
