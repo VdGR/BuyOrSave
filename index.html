@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Interactief financieel plan</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         referrerpolicy="no-referrer" />
@@ -15,18 +15,22 @@
   <header class="wrap">
     <div class="topbar">
       <div>
-        <h1><i class="fa-solid fa-chart-line"></i> Interactief financieel plan</h1>
-        <p class="muted"><i class="fa-solid fa-bolt"></i> Alles lokaal, geen backend. Alles is auto & live.</p>
+        <h1><i class="fa-solid fa-chart-line"></i> <span data-i18n="title">Interactief financieel plan</span></h1>
+        <p class="muted"><i class="fa-solid fa-bolt"></i> <span data-i18n="tagline">Alles lokaal, geen backend. Alles is auto & live.</span></p>
       </div>
       <div class="topbar-actions">
-        <button class="btn" id="resetBtn" type="button">
-          <i class="fa-solid fa-rotate-left"></i> Reset (Excel defaults)
+        <div class="lang-switch" role="group" aria-label="Language selector">
+          <button type="button" class="lang-btn" data-lang-toggle="en" aria-pressed="true">EN</button>
+          <button type="button" class="lang-btn" data-lang-toggle="nl" aria-pressed="false">NL</button>
+        </div>
+        <button class="btn" id="resetBtn" type="button" title="" data-i18n-title="resetBtnTitle">
+          <i class="fa-solid fa-rotate-left"></i> <span data-i18n="resetBtn">Reset (Excel defaults)</span>
         </button>
-        <button class="btn" id="copyLinkBtn" type="button" title="Copy shareable link">
-          <i class="fa-solid fa-link"></i> Copy link
+        <button class="btn" id="copyLinkBtn" type="button" title="Copy shareable link" data-i18n-title="copyLinkBtnTitle">
+          <i class="fa-solid fa-link"></i> <span data-i18n="copyLinkBtn">Copy link</span>
         </button>
-        <button class="btn" id="exportCsvBtn" type="button" title="Export scenario as CSV">
-          <i class="fa-solid fa-file-export"></i> Export CSV
+        <button class="btn" id="exportCsvBtn" type="button" title="Export scenario as CSV" data-i18n-title="exportCsvBtnTitle">
+          <i class="fa-solid fa-file-export"></i> <span data-i18n="exportCsvBtn">Export CSV</span>
         </button>
         <span id="copyStatus" class="muted" style="margin-left:8px; font-size:12px;"></span>
       </div>
@@ -37,109 +41,107 @@
     <!-- INPUTS -->
     <section class="card">
       <div class="cardTitle">
-        <h2><i class="fa-solid fa-sliders"></i> Inputs</h2>
-        <span class="muted">Wijzig → live update</span>
+        <h2><i class="fa-solid fa-sliders"></i> <span data-i18n="inputsTitle">Inputs</span></h2>
+        <span class="muted" data-i18n="inputsSubtitle">Wijzig → live update</span>
       </div>
 
       <div class="group">
-        <div class="groupTitle"><i class="fa-solid fa-gear"></i> Algemeen</div>
+        <div class="groupTitle"><i class="fa-solid fa-gear"></i> <span data-i18n="group.general">Algemeen</span></div>
         <div class="controls">
           <div class="field">
-            <label><i class="fa-regular fa-calendar"></i> Horizon (jaren)</label>
+            <label><i class="fa-regular fa-calendar"></i> <span data-i18n="label.horizonYears">Horizon (jaren)</span></label>
             <input type="number" min="1" max="60" step="1" data-path="horizonYears">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-wallet"></i> Maandbudget (lening + sparen) (€ / maand)</label>
+            <label><i class="fa-solid fa-wallet"></i> <span data-i18n="label.monthlyBudget">Maandbudget (lening + sparen) (€ / maand)</span></label>
             <input type="number" min="0" step="10" data-path="monthlyBudget">
           </div>
         </div>
-        <div class="hint">
-          Dit budget wordt automatisch verdeeld: leningbetaling eerst, overschot gaat naar sparen.
-        </div>
+        <div class="hint" data-i18n="hint.budgetDistribution">Dit budget wordt automatisch verdeeld: leningbetaling eerst, overschot gaat naar sparen.</div>
       </div>
 
       <div class="group">
-        <div class="groupTitle"><i class="fa-solid fa-piggy-bank"></i> Spaargeld</div>
+        <div class="groupTitle"><i class="fa-solid fa-piggy-bank"></i> <span data-i18n="group.saving">Spaargeld</span></div>
         <div class="controls">
           <div class="field">
-            <label><i class="fa-solid fa-wallet"></i> Huidig spaargeld (€)</label>
+            <label><i class="fa-solid fa-wallet"></i> <span data-i18n="label.cashNow">Huidig spaargeld (€)</span></label>
             <input type="number" min="0" step="50" data-path="cash.now">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-shield-heart"></i> % apart houden (0.15 = 15%)</label>
+            <label><i class="fa-solid fa-shield-heart"></i> <span data-i18n="label.setAsidePct">% apart houden (0.15 = 15%)</span></label>
             <input type="number" min="0" max="1" step="0.01" data-path="cash.setAsidePct">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-percent"></i> Rendement spaarrekening (% / jaar)</label>
+            <label><i class="fa-solid fa-percent"></i> <span data-i18n="label.savingRate">Rendement spaarrekening (% / jaar)</span></label>
             <input type="number" min="0" max="15" step="0.1" data-path="saving.annualRatePct">
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="groupTitle"><i class="fa-solid fa-building"></i> Vastgoed</div>
+        <div class="groupTitle"><i class="fa-solid fa-building"></i> <span data-i18n="group.realEstate">Vastgoed</span></div>
         <div class="controls">
           <div class="field">
-            <label><i class="fa-solid fa-tag"></i> Aankoopprijs appartement (€)</label>
+            <label><i class="fa-solid fa-tag"></i> <span data-i18n="label.realEstatePrice">Aankoopprijs appartement (€)</span></label>
             <input type="number" min="0" step="1000" data-path="realEstate.price">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-file-invoice-dollar"></i> Aankoopkosten (% van prijs, 0.10 = 10%)</label>
+            <label><i class="fa-solid fa-file-invoice-dollar"></i> <span data-i18n="label.purchaseCostPct">Aankoopkosten (% van prijs, 0.10 = 10%)</span></label>
             <input type="number" min="0" max="0.5" step="0.01" data-path="realEstatePurchaseCostPct">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-arrow-trend-up"></i> Waardestijging vastgoed (% / jaar)</label>
+            <label><i class="fa-solid fa-arrow-trend-up"></i> <span data-i18n="label.realEstateGrowthPct">Waardestijging vastgoed (% / jaar)</span></label>
             <input type="number" min="0" max="20" step="0.1" data-path="realEstate.annualGrowthPct">
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="groupTitle"><i class="fa-solid fa-file-invoice-dollar"></i> Lening</div>
+        <div class="groupTitle"><i class="fa-solid fa-file-invoice-dollar"></i> <span data-i18n="group.loan">Lening</span></div>
         <div class="controls">
           <div class="field">
-            <label><i class="fa-solid fa-percent"></i> Rente lening (% / jaar)</label>
+            <label><i class="fa-solid fa-percent"></i> <span data-i18n="label.loanRate">Rente lening (% / jaar)</span></label>
             <input type="number" min="0" max="15" step="0.1" data-path="loan.annualRatePct">
           </div>
           <div class="field">
-            <label><i class="fa-regular fa-clock"></i> Looptijd lening (jaren)</label>
+            <label><i class="fa-regular fa-clock"></i> <span data-i18n="label.loanYears">Looptijd lening (jaren)</span></label>
             <input type="number" min="1" max="40" step="1" data-path="loan.years">
           </div>
         </div>
       </div>
 
       <div class="group">
-        <div class="groupTitle"><i class="fa-solid fa-key"></i> Verhuur</div>
+        <div class="groupTitle"><i class="fa-solid fa-key"></i> <span data-i18n="group.rent">Verhuur</span></div>
         <div class="controls">
           <div class="field">
-            <label><i class="fa-solid fa-toggle-on"></i> Verhuur inschakelen</label>
+            <label><i class="fa-solid fa-toggle-on"></i> <span data-i18n="label.rentEnabled">Verhuur inschakelen</span></label>
             <div class="row">
               <input type="checkbox" data-path="rent.enabled">
-              <span class="muted">Enabled</span>
+              <span class="muted" data-i18n="label.enabled">Enabled</span>
             </div>
           </div>
           <div class="field">
-            <label><i class="fa-regular fa-calendar-plus"></i> Start verhuren na (jaren)</label>
+            <label><i class="fa-regular fa-calendar-plus"></i> <span data-i18n="label.rentStartAfterYears">Start verhuren na (jaren)</span></label>
             <input type="number" min="0" step="1" data-path="rent.startAfterYears">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-euro-sign"></i> Huurprijs (€ / maand)</label>
+            <label><i class="fa-solid fa-euro-sign"></i> <span data-i18n="label.rentMonthlyRent">Huurprijs (€ / maand)</span></label>
             <input type="number" min="0" step="10" data-path="rent.monthlyRent">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-house-circle-xmark"></i> Leegstand (0.25 = 25%)</label>
+            <label><i class="fa-solid fa-house-circle-xmark"></i> <span data-i18n="label.rentVacancy">Leegstand (0.25 = 25%)</span></label>
             <input type="number" min="0" max="1" step="0.01" data-path="rent.vacancyRate">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-fire-extinguisher"></i> Brandverzekering (0.10 = 10%)</label>
+            <label><i class="fa-solid fa-fire-extinguisher"></i> <span data-i18n="label.rentInsurance">Brandverzekering (0.10 = 10%)</span></label>
             <input type="number" min="0" max="1" step="0.01" data-path="rent.insuranceRate">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-receipt"></i> Onroerende voorheffing (0.10 = 10%)</label>
+            <label><i class="fa-solid fa-receipt"></i> <span data-i18n="label.rentTax">Onroerende voorheffing (0.10 = 10%)</span></label>
             <input type="number" min="0" max="1" step="0.01" data-path="rent.taxRate">
           </div>
           <div class="field">
-            <label><i class="fa-solid fa-screwdriver-wrench"></i> Onderhoud (0.20 = 20%)</label>
+            <label><i class="fa-solid fa-screwdriver-wrench"></i> <span data-i18n="label.rentMaintenance">Onderhoud (0.20 = 20%)</span></label>
             <input type="number" min="0" max="1" step="0.01" data-path="rent.maintenanceRate">
           </div>
         </div>
@@ -149,63 +151,63 @@
     <!-- OUTPUTS -->
     <aside class="card">
       <div class="cardTitle">
-        <h2><i class="fa-solid fa-gauge-high"></i> Resultaten</h2>
+        <h2><i class="fa-solid fa-gauge-high"></i> <span data-i18n="resultsTitle">Resultaten</span></h2>
         <span class="muted" id="subtitle"></span>
       </div>
 
       <div class="kpis">
         <!-- Startkapitaal -->
-        <div class="kpi-section">
-          <div class="kpi-section-title">💰 Startkapitaal</div>
-          <div class="kpi"><div class="muted">Apart gezet</div><div class="kpiV" id="kpiSetAside"></div></div>
-          <div class="kpi"><div class="muted">Investeerbaar (nu)</div><div class="kpiV" id="kpiInvestable"></div></div>
+          <div class="kpi-section">
+          <div class="kpi-section-title">💰 <span data-i18n="kpi.startCapital">Startkapitaal</span></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.setAside">Apart gezet</div><div class="kpiV" id="kpiSetAside"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.investable">Investeerbaar (nu)</div><div class="kpiV" id="kpiInvestable"></div></div>
         </div>
 
         <!-- Vastgoedaankoop -->
-        <div class="kpi-section">
-          <div class="kpi-section-title">🏠 Vastgoedaankoop</div>
-          <div class="kpi"><div class="muted">Inbreng (auto)</div><div class="kpiV" id="kpiDownPayment"></div></div>
-          <div class="kpi"><div class="muted">Leningbedrag (auto)</div><div class="kpiV" id="kpiPrincipal"></div></div>
+          <div class="kpi-section">
+          <div class="kpi-section-title">🏠 <span data-i18n="kpi.realEstatePurchase">Vastgoedaankoop</span></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.downPayment">Inbreng (auto)</div><div class="kpiV" id="kpiDownPayment"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.principal">Leningbedrag (auto)</div><div class="kpiV" id="kpiPrincipal"></div></div>
           <div class="kpi">
-            <div class="muted">Aankoopkosten</div>
+            <div class="muted" data-i18n="kpi.purchaseCosts">Aankoopkosten</div>
             <div>
               <div class="kpiV" id="kpiPurchaseCosts"></div>
               <div class="kpiPct muted" id="kpiPurchaseCostsPct"></div>
             </div>
           </div>
-          <div class="kpi"><div class="muted">Totale aankoop</div><div class="kpiV" id="kpiTotalPurchase"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.totalPurchase">Totale aankoop</div><div class="kpiV" id="kpiTotalPurchase"></div></div>
         </div>
 
         <!-- Maandbudget & Lening -->
         <div class="kpi-section">
-          <div class="kpi-section-title">📊 Maandbudget & Lening</div>
-          <div class="kpi"><div class="muted">Maandbudget</div><div class="kpiV" id="kpiMonthlyBudget"></div></div>
-          <div class="kpi"><div class="muted">Lening afbetaling/maand</div><div class="kpiV" id="kpiLoanMonthly"></div></div>
-          <div class="kpi"><div class="muted">Overschot → sparen/maand</div><div class="kpiV" id="kpiExtraSaved"></div></div>
-          <div class="kpi"><div class="muted">Totaal sparen/maand</div><div class="kpiV" id="kpiTotalMonthlySaving"></div></div>
+          <div class="kpi-section-title">📊 <span data-i18n="kpi.budgetLoan">Maandbudget & Lening</span></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.monthlyBudget">Maandbudget</div><div class="kpiV" id="kpiMonthlyBudget"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.loanMonthly">Lening afbetaling/maand</div><div class="kpiV" id="kpiLoanMonthly"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.extraSaved">Overschot → sparen/maand</div><div class="kpiV" id="kpiExtraSaved"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.totalMonthlySaving">Totaal sparen/maand</div><div class="kpiV" id="kpiTotalMonthlySaving"></div></div>
         </div>
 
         <!-- Na horizon (25 jaar) -->
         <div class="kpi-section">
-          <div class="kpi-section-title">📈 Na horizon</div>
-          <div class="kpi"><div class="muted">Sparen</div><div class="kpiV" id="kpiSaving"></div></div>
-          <div class="kpi"><div class="muted">Vastgoedwaarde</div><div class="kpiV" id="kpiRE"></div></div>
-          <div class="kpi"><div class="muted">Leningrest</div><div class="kpiV" id="kpiLoanBalance"></div></div>
-          <div class="kpi"><div class="muted">Netto equity</div><div class="kpiV" id="kpiEquity"></div></div>
+          <div class="kpi-section-title">📈 <span data-i18n="kpi.afterHorizon">Na horizon</span></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.saving">Sparen</div><div class="kpiV" id="kpiSaving"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.realEstateValue">Vastgoedwaarde</div><div class="kpiV" id="kpiRE"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.loanBalance">Leningrest</div><div class="kpiV" id="kpiLoanBalance"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.equity">Netto equity</div><div class="kpiV" id="kpiEquity"></div></div>
         </div>
 
         <!-- Verhuur -->
         <div class="kpi-section">
-          <div class="kpi-section-title">🏘️ Verhuur (na horizon)</div>
-          <div class="kpi"><div class="muted">Netto verhuur/maand</div><div class="kpiV" id="kpiRentNetMonthly"></div></div>
-          <div class="kpi"><div class="muted">Verhuur winst (horizon)</div><div class="kpiV" id="kpiRentProfit"></div></div>
+          <div class="kpi-section-title">🏘️ <span data-i18n="kpi.rent">Verhuur (na horizon)</span></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.rentNetMonthly">Netto verhuur/maand</div><div class="kpiV" id="kpiRentNetMonthly"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.rentProfit">Verhuur winst (horizon)</div><div class="kpiV" id="kpiRentProfit"></div></div>
         </div>
 
         <!-- Totaal Vermogen -->
         <div class="kpi" style="grid-column:1 / -1; background:rgba(124,92,255,.12); border-color:rgba(124,92,255,.4);">
-          <div class="muted"><strong>💎 TOTAAL VERMOGEN</strong></div>
+          <div class="muted"><strong data-i18n="kpi.totalWealthHeading">💎 TOTAAL VERMOGEN</strong></div>
           <div class="kpiV" id="kpiTotalWealth"></div>
-          <div class="muted" style="font-size:11px; margin-top:4px;">Sparen + Equity + Huurwinst</div>
+          <div class="muted" style="font-size:11px; margin-top:4px;" data-i18n="kpi.totalBreakdown">Sparen + Equity + Huurwinst</div>
         </div>
       </div>
 
@@ -217,16 +219,16 @@
   <section class="wrap">
     <div class="card">
       <div class="cardTitle">
-        <h2><i class="fa-solid fa-code-compare"></i> Scenario's vergelijken</h2>
-        <span class="muted">Vastgoed vs. Enkel sparen</span>
+        <h2><i class="fa-solid fa-code-compare"></i> <span data-i18n="compare.title">Scenario's vergelijken</span></h2>
+        <span class="muted" data-i18n="compare.subtitle">Vastgoed vs. Enkel sparen</span>
       </div>
 
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
         <!-- Savings-only scenario -->
         <div>
           <div class="kpi" style="background:rgba(249,115,22,.1); border-color:rgba(249,115,22,.3);">
-            <div class="muted"><strong>📊 Scenario 1: Enkel sparen</strong></div>
-            <div class="muted" style="font-size:11px; margin-bottom:8px; opacity:.7;">Geen vastgoed, volledig budget → spaarrekening</div>
+            <div class="muted"><strong>📊 <span data-i18n="compare.scenario1Title">Scenario 1: Enkel sparen</span></strong></div>
+            <div class="muted" style="font-size:11px; margin-bottom:8px; opacity:.7;" data-i18n="compare.scenario1Subtitle">Geen vastgoed, volledig budget → spaarrekening</div>
             <div class="kpiV" id="savingsOnlyTotal"></div>
           </div>
         </div>
@@ -234,7 +236,7 @@
         <!-- Recommendation -->
         <div>
           <div class="kpi" style="background:rgba(124,92,255,.12); border-color:rgba(124,92,255,.4);">
-            <div class="muted"><strong>🎯 Welke is beter?</strong></div>
+            <div class="muted"><strong>🎯 <span data-i18n="compare.whichBetter">Welke is beter?</span></strong></div>
             <div id="scenarioComparison" style="font-size:12px; margin-top:8px; line-height:1.6; color:rgba(233,236,255,.85);"></div>
           </div>
         </div>
@@ -244,12 +246,12 @@
       <div style="margin-top:20px;">
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
           <div>
-            <h3 style="font-size:13px; margin:0 0 12px 0; color:rgba(233,236,255,.7);">📈 Met huurinkomsten</h3>
+            <h3 style="font-size:13px; margin:0 0 12px 0; color:rgba(233,236,255,.7);"><span data-i18n="chart.withRent">📈 Met huurinkomsten</span></h3>
             <div class="compare-grid" id="chartWithRent"></div>
           </div>
 
           <div>
-            <h3 style="font-size:13px; margin:0 0 12px 0; color:rgba(233,236,255,.7);">📊 Zonder huurinkomsten (puur belegging)</h3>
+            <h3 style="font-size:13px; margin:0 0 12px 0; color:rgba(233,236,255,.7);"><span data-i18n="chart.withoutRent">📊 Zonder huurinkomsten (puur belegging)</span></h3>
             <div class="compare-grid" id="chartWithoutRent"></div>
           </div>
         </div>
@@ -261,16 +263,16 @@
   <section class="wrap">
     <div class="card">
       <div class="cardTitle">
-        <h2><i class="fa-solid fa-chart-line"></i> Tijdslijn: Wanneer is vastgoed beter?</h2>
-        <span class="muted">Vermogen door de jaren heen</span>
+        <h2><i class="fa-solid fa-chart-line"></i> <span data-i18n="timeline.title">Tijdslijn: Wanneer is vastgoed beter?</span></h2>
+        <span class="muted" data-i18n="timeline.subtitle">Vermogen door de jaren heen</span>
       </div>
 
       <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
         <label style="display:flex; gap:8px; align-items:center; font-size:13px;">
-          <input type="checkbox" id="showBreakEven" checked> Toon breakeven-markers
+          <input type="checkbox" id="showBreakEven" checked> <span data-i18n="timeline.showBreakEven">Toon breakeven-markers</span>
         </label>
-        <button class="btn" id="toggleTimelineTable">Toon jaartabel</button>
-        <button class="btn" id="downloadTimelineCsv">Download timeline (CSV)</button>
+        <button class="btn" id="toggleTimelineTable" data-i18n="timeline.toggleTable">Toon jaartabel</button>
+        <button class="btn" id="downloadTimelineCsv" data-i18n="timeline.downloadCsv">Download timeline (CSV)</button>
       </div>
 
       <div style="margin-bottom:16px; position:relative;">
@@ -287,10 +289,10 @@
             <table id="timelineTable" style="width:100%; border-collapse:collapse;">
               <thead>
                 <tr style="text-align:left; color:var(--muted); font-size:12px;">
-                  <th>Jaar</th>
-                  <th>Vastgoed (met huur)</th>
-                  <th>Vastgoed (geen huur)</th>
-                  <th>Enkel sparen</th>
+                  <th data-i18n="table.year">Jaar</th>
+                  <th data-i18n="table.realEstateWithRent">Vastgoed (met huur)</th>
+                  <th data-i18n="table.realEstateWithoutRent">Vastgoed (geen huur)</th>
+                  <th data-i18n="table.savingsOnly">Enkel sparen</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -306,25 +308,25 @@
   <section class="wrap">
     <div class="card">
       <div class="cardTitle">
-        <h2><i class="fa-solid fa-wallet"></i> Cashflow & Amortisatie</h2>
-        <span class="muted">Jaarlijkse samenvatting</span>
+        <h2><i class="fa-solid fa-wallet"></i> <span data-i18n="cashflow.title">Cashflow & Amortisatie</span></h2>
+        <span class="muted" data-i18n="cashflow.subtitle">Jaarlijkse samenvatting</span>
       </div>
 
       <div style="display:grid; grid-template-columns: 1fr; gap:16px;">
         <div>
           <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-            <strong style="font-size:13px;">Jaarlijkse cashflow</strong>
-            <button class="btn" id="exportCashflowCsv">Export CSV</button>
+            <strong style="font-size:13px;" data-i18n="cashflow.titleShort">Jaarlijkse cashflow</strong>
+            <button class="btn" id="exportCashflowCsv" data-i18n="cashflow.exportCsv">Export CSV</button>
           </div>
           <div style="overflow:auto; max-height:320px;">
             <table id="cashflowTable" style="width:100%; border-collapse:collapse;">
               <thead>
                 <tr style="text-align:left; color:var(--muted); font-size:12px;">
-                  <th>Jaar</th>
-                  <th>Huur bruto</th>
-                  <th>Netto huur</th>
-                  <th>Lening (jr)</th>
-                  <th>Netto cashflow</th>
+                  <th data-i18n="table.year">Jaar</th>
+                  <th data-i18n="cashflow.grossRent">Huur bruto</th>
+                  <th data-i18n="cashflow.netRent">Netto huur</th>
+                  <th data-i18n="cashflow.loanYear">Lening (jr)</th>
+                  <th data-i18n="cashflow.netCash">Netto cashflow</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -335,22 +337,22 @@
 
         <div>
           <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-            <strong style="font-size:13px;">Amortisatie (jaarlijks)</strong>
+            <strong style="font-size:13px;" data-i18n="amort.title">Amortisatie (jaarlijks)</strong>
             <div style="display:flex; gap:8px; align-items:center; margin-left:8px;">
-              <button class="btn" id="exportAmortCsv">Export CSV</button>
-              <button class="btn" id="toggleExpandAmort" aria-pressed="false" type="button">Uitklappen alles</button>
+              <button class="btn" id="exportAmortCsv" data-i18n="amort.exportCsv">Export CSV</button>
+              <button class="btn" id="toggleExpandAmort" aria-pressed="false" type="button" data-i18n="amort.expandAll">Uitklappen alles</button>
             </div>
           </div>
           <div style="overflow:auto; max-height:320px;">
             <table id="amortTable" style="width:100%; border-collapse:collapse;">
               <thead>
                 <tr style="text-align:left; color:var(--muted); font-size:12px;">
-                  <th>Jaar</th>
-                  <th>Startsaldo</th>
-                  <th>Betaald (jr)</th>
-                  <th>Rente (jr)</th>
-                  <th>Kapitaal (jr)</th>
-                  <th>Eindsaldo</th>
+                  <th data-i18n="table.year">Jaar</th>
+                  <th data-i18n="amort.startBalance">Startsaldo</th>
+                  <th data-i18n="amort.paid">Betaald (jr)</th>
+                  <th data-i18n="amort.interest">Rente (jr)</th>
+                  <th data-i18n="amort.principal">Kapitaal (jr)</th>
+                  <th data-i18n="amort.endBalance">Eindsaldo</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -362,6 +364,6 @@
     </div>
   </section>
 
-  <script src="app.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

@@ -34,6 +34,262 @@ function deepClone(obj){
 }
 const params = deepClone(DEFAULTS);
 
+// --- i18n: translations & helpers ---
+const TRANSLATIONS = {
+  nl: {
+    title: "Interactief financieel plan",
+    tagline: "Alles lokaal, geen backend. Alles is auto & live.",
+    resetBtn: "Reset (Excel defaults)",
+    resetBtnTitle: "Reset alle waarden naar de Excel-standaard",
+    copyLinkBtn: "Kopieer link",
+    copyLinkBtnTitle: "Kopieer deelbare link",
+    exportCsvBtn: "Exporteren (CSV)",
+    exportCsvBtnTitle: "Exporteer scenario als CSV",
+    inputsTitle: "Inputs",
+    inputsSubtitle: "Wijzig → live update",
+    "group.general":"Algemeen",
+    "group.saving":"Spaargeld",
+    "group.realEstate":"Vastgoed",
+    "group.loan":"Lening",
+    "group.rent":"Verhuur",
+    "hint.budgetDistribution":"Dit budget wordt automatisch verdeeld: leningbetaling eerst, overschot gaat naar sparen.",
+    "label.horizonYears":"Horizon (jaren)",
+    "label.monthlyBudget":"Maandbudget (lening + sparen) (€ / maand)",
+    "label.cashNow":"Huidig spaargeld (€)",
+    "label.setAsidePct":"% apart houden (0.15 = 15%)",
+    "label.savingRate":"Rendement spaarrekening (% / jaar)",
+    "label.realEstatePrice":"Aankoopprijs appartement (€)",
+    "label.purchaseCostPct":"Aankoopkosten (% van prijs, 0.10 = 10%)",
+    "label.realEstateGrowthPct":"Waardestijging vastgoed (% / jaar)",
+    "label.loanRate":"Rente lening (% / jaar)",
+    "label.loanYears":"Looptijd lening (jaren)",
+    "label.rentEnabled":"Verhuur inschakelen",
+    "label.enabled":"Ingeschakeld",
+    "label.rentStartAfterYears":"Start verhuren na (jaren)",
+    "label.rentMonthlyRent":"Huurprijs (€ / maand)",
+    "label.rentVacancy":"Leegstand (0.25 = 25%)",
+    "label.rentInsurance":"Brandverzekering (0.10 = 10%)",
+    "label.rentTax":"Onroerende voorheffing (0.10 = 10%)",
+    "label.rentMaintenance":"Onderhoud (0.20 = 20%)",
+    resultsTitle: "Resultaten",
+    subtitleTemplate: "{horizon} jaar • budget {budget}/m • sparen {saving}% • vastgoed {growth}%",
+    "chart.labels.savings":"Sparen",
+    "chart.labels.equity":"Equity",
+    "chart.labels.total":"Totaal (sparen+equity+huur)",
+    "compare.withRent":"Vastgoed (met huur)",
+    "compare.withoutRent":"Vastgoed (geen huur)",
+    "compare.savings":"Enkel sparen",
+    "compare.title":"Scenario's vergelijken",
+    "compare.subtitle":"Vastgoed vs. Enkel sparen",
+    "compare.scenario1Title":"Scenario 1: Enkel sparen",
+    "compare.scenario1Subtitle":"Geen vastgoed, volledig budget → spaarrekening",
+    "compare.whichBetter":"Welke is beter?",
+    "chart.withRent":"📈 Met huurinkomsten",
+    "chart.withoutRent":"📊 Zonder huurinkomsten (puur belegging)",
+    "comparison.realEstateBetter":"✓ Vastgoed is beter<br/>+{diff} extra vermogen ({percent}% meer)",
+    "comparison.savingBetter":"✗ Enkel sparen is beter<br/>+{diff} extra vermogen ({percent}% meer)",
+    "comparison.equal":"= Gelijk<br/>Beide scenario's resulteren in hetzelfde vermogen",
+    "breakeven.withRentBetterAfter":"Met huur: beter na ~{year} jaar",
+    "breakeven.withRentNeverBetter":"Met huur: nooit beter (in deze periode)",
+    "breakeven.withoutRentBetterAfter":"Zonder huur: beter na ~{year} jaar",
+    "breakeven.withoutRentNeverBetter":"Zonder huur: nooit beter (in deze periode)",
+    "unit.yearShort":"j",
+    "timeline.showBreakEven":"Toon breakeven-markers",
+    "timeline.toggleTable":"Toon jaartabel",
+    "timeline.downloadCsv":"Download timeline (CSV)",
+    "table.year":"Jaar",
+    "table.realEstateWithRent":"Vastgoed (met huur)",
+    "table.realEstateWithoutRent":"Vastgoed (geen huur)",
+    "table.savingsOnly":"Enkel sparen",
+    "amort.expandAll":"Uitklappen alles",
+    "amort.collapseAll":"Dichtklappen alles",
+    "amort.loanFullyPaid":"Lening volledig afbetaald",
+    "monthly.heading":"Maandelijkse breakdown — Jaar {year}",
+    "monthly.exportCsvLabel":"Exporteer maandelijkse breakdown als CSV",
+    "cashflow.title":"Cashflow & Amortisatie",
+    "cashflow.subtitle":"Jaarlijkse samenvatting",
+    "cashflow.titleShort":"Jaarlijkse cashflow",
+    "cashflow.exportCsv":"Export CSV",
+    "cashflow.grossRent":"Huur bruto",
+    "cashflow.netRent":"Netto huur",
+    "cashflow.loanYear":"Lening (jr)",
+    "cashflow.netCash":"Netto cashflow",
+    "amort.title":"Amortisatie (jaarlijks)",
+    "amort.exportCsv":"Export CSV",
+    "amort.startBalance":"Startsaldo",
+    "amort.paid":"Betaald (jr)",
+    "amort.interest":"Rente (jr)",
+    "amort.principal":"Kapitaal (jr)",
+    "amort.endBalance":"Eindsaldo",
+    "amort.payment":"Betaling",
+    "table.month":"Maand",
+    "copy.linkCopied":"Link gekopieerd",
+    "copy.copyFailed":"Kopiëren mislukt - hier is de link",
+    "csv.horizon":"Horizon (jaren)",
+    "csv.monthlyBudget":"Maandbudget",
+    "csv.cashNow":"Huidig spaargeld",
+    "csv.realEstatePrice":"Aankoopprijs",
+    "csv.purchaseCostPct":"Aankoopkosten (%)",
+    "csv.purchaseCost":"Aankoopkosten (EUR)",
+    "csv.totalPurchase":"Totale aankoop",
+    "csv.totalWealth":"Totale vermogen (vastgoed)",
+    "csv.totalWealthSavings":"Totale vermogen (enkel sparen)"
+  },
+  en: {
+    title: "Interactive financial plan",
+    tagline: "All local, no backend. Everything is auto & live.",
+    resetBtn: "Reset (Excel defaults)",
+    resetBtnTitle: "Reset all values to Excel defaults",
+    copyLinkBtn: "Copy link",
+    copyLinkBtnTitle: "Copy shareable link",
+    exportCsvBtn: "Export (CSV)",
+    exportCsvBtnTitle: "Export scenario as CSV",
+    inputsTitle: "Inputs",
+    inputsSubtitle: "Change → live update",
+    "group.general":"General",
+    "group.saving":"Savings",
+    "group.realEstate":"Real estate",
+    "group.loan":"Loan",
+    "group.rent":"Rent",
+    "hint.budgetDistribution":"This budget is automatically split: loan payments first, surplus goes to saving.",
+    "label.horizonYears":"Horizon (years)",
+    "label.monthlyBudget":"Monthly budget (loan + savings) (€ / month)",
+    "label.cashNow":"Current savings (€)",
+    "label.setAsidePct":"% set aside (0.15 = 15%)",
+    "label.savingRate":"Savings interest (% / year)",
+    "label.realEstatePrice":"Purchase price apartment (€)",
+    "label.purchaseCostPct":"Purchase costs (% of price, 0.10 = 10%)",
+    "label.realEstateGrowthPct":"Real estate growth (% / year)",
+    "label.loanRate":"Loan interest (% / year)",
+    "label.loanYears":"Loan term (years)",
+    "label.rentEnabled":"Enable renting",
+    "label.enabled":"Enabled",
+    "label.rentStartAfterYears":"Start renting after (years)",
+    "label.rentMonthlyRent":"Rent price (€ / month)",
+    "label.rentVacancy":"Vacancy (0.25 = 25%)",
+    "label.rentInsurance":"Insurance (0.10 = 10%)",
+    "label.rentTax":"Property tax (0.10 = 10%)",
+    "label.rentMaintenance":"Maintenance (0.20 = 20%)",
+    resultsTitle: "Results",
+    subtitleTemplate: "{horizon} yrs • budget {budget}/m • saving {saving}% • real estate {growth}%",
+    "chart.labels.savings":"Savings",
+    "chart.labels.equity":"Equity",
+    "chart.labels.total":"Total (savings+equity+rent)",
+    "compare.withRent":"Real estate (with rent)",
+    "compare.withoutRent":"Real estate (no rent)",
+    "compare.savings":"Savings only",
+    "compare.title":"Compare scenarios",
+    "compare.subtitle":"Real estate vs. Savings only",
+    "compare.scenario1Title":"Scenario 1: Savings only",
+    "compare.scenario1Subtitle":"No real estate, full budget → savings",
+    "compare.whichBetter":"Which is better?",
+    "chart.withRent":"📈 With rent",
+    "chart.withoutRent":"📊 Without rent (pure investment)",
+    "comparison.realEstateBetter":"✓ Real estate is better<br/>+{diff} extra wealth ({percent}% more)",
+    "comparison.savingBetter":"✗ Savings only is better<br/>+{diff} extra wealth ({percent}% more)",
+    "comparison.equal":"= Equal<br/>Both scenarios result in the same wealth",
+    "breakeven.withRentBetterAfter":"With rent: better after ~{year} years",
+    "breakeven.withRentNeverBetter":"With rent: never better (in this period)",
+    "breakeven.withoutRentBetterAfter":"Without rent: better after ~{year} years",
+    "breakeven.withoutRentNeverBetter":"Without rent: never better (in this period)",
+    "unit.yearShort":"y",
+    "timeline.showBreakEven":"Show breakeven markers",
+    "timeline.toggleTable":"Toggle year table",
+    "timeline.downloadCsv":"Download timeline (CSV)",
+    "table.year":"Year",
+    "table.realEstateWithRent":"Real estate (with rent)",
+    "table.realEstateWithoutRent":"Real estate (no rent)",
+    "table.savingsOnly":"Savings only",
+    "amort.expandAll":"Expand all",
+    "amort.collapseAll":"Collapse all",
+    "amort.loanFullyPaid":"Loan fully paid",
+    "monthly.heading":"Monthly breakdown — Year {year}",
+    "monthly.exportCsvLabel":"Export monthly breakdown as CSV",
+    "cashflow.title":"Cashflow & Amortisation",
+    "cashflow.subtitle":"Annual summary",
+    "cashflow.titleShort":"Annual cashflow",
+    "cashflow.exportCsv":"Export CSV",
+    "cashflow.grossRent":"Gross rent",
+    "cashflow.netRent":"Net rent",
+    "cashflow.loanYear":"Loan (yr)",
+    "cashflow.netCash":"Net cashflow",
+    "amort.title":"Amortisation (annual)",
+    "amort.exportCsv":"Export CSV",
+    "amort.startBalance":"StartBalance",
+    "amort.paid":"Paid",
+    "amort.interest":"Interest",
+    "amort.principal":"Principal",
+    "amort.endBalance":"EndBalance",
+    "amort.payment":"Payment",
+    "table.month":"Month",
+    "copy.linkCopied":"Link copied",
+    "copy.copyFailed":"Copy failed - here is the link",
+    "csv.horizon":"Horizon (years)",
+    "csv.monthlyBudget":"Monthly budget",
+    "csv.cashNow":"Current savings",
+    "csv.realEstatePrice":"Purchase price",
+    "csv.purchaseCostPct":"Purchase costs (%)",
+    "csv.purchaseCost":"Purchase costs (EUR)",
+    "csv.totalPurchase":"Total purchase",
+    "csv.totalWealth":"Total wealth (real estate)",
+    "csv.totalWealthSavings":"Total wealth (savings only)"
+  }
+};
+
+let currentLang = localStorage.getItem('lang') || (navigator.language && navigator.language.startsWith('en') ? 'en' : 'nl');
+
+function t(key, vars){
+  const parts = key.split('.');
+  let s = TRANSLATIONS[currentLang];
+  for (const p of parts){
+    if (s == null) break;
+    s = s[p];
+  }
+  if (typeof s !== 'string') return key;
+  if (vars){
+    Object.keys(vars).forEach(k => s = s.replace(new RegExp('\\{'+k+'\\}','g'), vars[k]));
+  }
+  return s;
+}
+
+function applyTranslations(){
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const v = t(key);
+    if (v) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-title');
+    const v = t(key);
+    if (v) el.setAttribute('title', v);
+  });
+  const sel = document.querySelector('#langSelect');
+  if (sel) sel.value = currentLang;
+  // update certain dynamic UI text that JS controls directly
+  const toggleExpandBtn = document.querySelector('#toggleExpandAmort');
+  if (toggleExpandBtn){
+    const pressed = toggleExpandBtn.getAttribute('aria-pressed') === 'true';
+    toggleExpandBtn.textContent = pressed ? t('amort.collapseAll') : t('amort.expandAll');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const sel = document.querySelector('#langSelect');
+  if (sel){
+    sel.value = currentLang;
+    sel.addEventListener('change', (e)=> {
+      currentLang = e.target.value;
+      localStorage.setItem('lang', currentLang);
+      applyTranslations();
+      render();
+    });
+  }
+  applyTranslations();
+});
+
+applyTranslations();
+
 let lastCashflow = [];
 let lastAmort = [];
 
@@ -355,11 +611,11 @@ function renderTimelineChart(p) {
     ctx.fillStyle = color;
     ctx.font = "12px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(label + ' ~' + point.year + 'j', x, padding.top + 14);
+    ctx.fillText(label + ' ~' + point.year + t('unit.yearShort'), x, padding.top + 14);
   };
 
-  drawBreakeven(breakevenWithRentPoint, 'Met huur', colors.withRent);
-  drawBreakeven(breakevenWithoutRentPoint, 'Geen huur', colors.withoutRent);
+  drawBreakeven(breakevenWithRentPoint, t('compare.withRent'), colors.withRent);
+  drawBreakeven(breakevenWithoutRentPoint, t('compare.withoutRent'), colors.withoutRent);
   
   // Draw labels
   ctx.fillStyle = "rgba(233, 236, 255, 0.7)";
@@ -370,7 +626,7 @@ function renderTimelineChart(p) {
   const step = Math.ceil(timeline.length / 6);
   for (let i = 0; i < timeline.length; i += step) {
     const x = padding.left + (graphWidth / (timeline.length - 1 || 1)) * i;
-    ctx.fillText(timeline[i].year + "j", x, height - padding.bottom + 20);
+    ctx.fillText(timeline[i].year + t('unit.yearShort'), x, height - padding.bottom + 20);
   }
   
   // Y-axis labels
@@ -392,23 +648,23 @@ function renderTimelineChart(p) {
     ctx.fillText(label, x + 18, legendY + 10);
   };
   
-  drawLegendItem(padding.left, colors.withRent, "Vastgoed (met huur)");
-  drawLegendItem(padding.left + 160, colors.withoutRent, "Vastgoed (geen huur)");
-  drawLegendItem(padding.left + 320, colors.savingsOnly, "Enkel sparen");
+  drawLegendItem(padding.left, colors.withRent, t('compare.withRent'));
+  drawLegendItem(padding.left + 160, colors.withoutRent, t('compare.withoutRent'));
+  drawLegendItem(padding.left + 320, colors.savingsOnly, t('compare.savings'));
   
   // Display breakeven info
   const breakdownEl = document.querySelector("#timelineBreakdown");
   if (breakdownEl) {
     let breakdown = "";
     if (breakevenWithRent) {
-      breakdown += `<div>✓ Met huur: beter na ~${breakevenWithRent} jaar</div>`;
+      breakdown += `<div>✓ ${t('breakeven.withRentBetterAfter', { year: breakevenWithRent })}</div>`;
     } else {
-      breakdown += `<div>✗ Met huur: nooit beter (in deze periode)</div>`;
+      breakdown += `<div>✗ ${t('breakeven.withRentNeverBetter')}</div>`;
     }
     if (breakevenWithoutRent) {
-      breakdown += `<div>✓ Zonder huur: beter na ~${breakevenWithoutRent} jaar</div>`;
+      breakdown += `<div>✓ ${t('breakeven.withoutRentBetterAfter', { year: breakevenWithoutRent })}</div>`;
     } else {
-      breakdown += `<div>✗ Zonder huur: nooit beter (in deze periode)</div>`;
+      breakdown += `<div>✗ ${t('breakeven.withoutRentNeverBetter')}</div>`;
     }
     breakdownEl.innerHTML = breakdown;
   }
@@ -435,13 +691,13 @@ function renderTimelineChart(p) {
       const x = ev.clientX - rect.left;
       const i = Math.round((x - padding.left) / (graphWidth / (timeline.length - 1 || 1)));
       const idx = Math.max(0, Math.min(timeline.length - 1, i));
-      const t = timeline[idx];
-      if (!t){ tooltip.style.display = 'none'; return; }
+      const row = timeline[idx];
+      if (!row){ tooltip.style.display = 'none'; return; }
       tooltip.innerHTML = `
-        <div style="font-weight:700; margin-bottom:6px;">Jaar ${t.year}j</div>
-        <div>Vastgoed (met huur): ${fmt(t.wealthWithRent)}</div>
-        <div>Vastgoed (geen huur): ${fmt(t.wealthWithoutRent)}</div>
-        <div>Enkel sparen: ${fmt(t.savingsOnly)}</div>
+        <div style="font-weight:700; margin-bottom:6px;">${t('table.year')} ${row.year}${t('unit.yearShort')}</div>
+        <div>${t('compare.withRent')}: ${fmt(row.wealthWithRent)}</div>
+        <div>${t('compare.withoutRent')}: ${fmt(row.wealthWithoutRent)}</div>
+        <div>${t('compare.savings')}: ${fmt(row.savingsOnly)}</div>
       `;
       tooltip.style.display = 'block';
       tooltip.style.left = Math.max(8, ev.clientX + 10) + 'px';
@@ -662,8 +918,8 @@ function renderComparisonCharts(out, outSavingsOnly){
   const chartWithRent = document.querySelector("#chartWithRent");
   if (chartWithRent) {
     // Render two compact cards side-by-side
-    const left = { label: "Vastgoed (met huur)", value: out.totalWealth };
-    const right = { label: "Enkel sparen", value: outSavingsOnly.totalWealth };
+    const left = { label: t('compare.withRent'), value: out.totalWealth };
+    const right = { label: t('compare.savings'), value: outSavingsOnly.totalWealth };
     const max = Math.max(left.value, right.value, 1);
 
     chartWithRent.innerHTML = `
@@ -686,8 +942,8 @@ function renderComparisonCharts(out, outSavingsOnly){
   const wealthWithoutRent = out.savingTotal + out.equity;
   const chartWithoutRent = document.querySelector("#chartWithoutRent");
   if (chartWithoutRent) {
-    const left = { label: "Vastgoed (geen huur)", value: wealthWithoutRent };
-    const right = { label: "Enkel sparen", value: outSavingsOnly.totalWealth };
+    const left = { label: t('compare.withoutRent'), value: wealthWithoutRent };
+    const right = { label: t('compare.savings'), value: outSavingsOnly.totalWealth };
     const max = Math.max(left.value, right.value, 1);
 
     chartWithoutRent.innerHTML = `
@@ -714,14 +970,11 @@ function renderComparisonCharts(out, outSavingsOnly){
     let message = "";
     
     if (diff > 0) {
-      message = `<strong style="color:#4ade80">✓ Vastgoed is beter</strong><br/>
-        +${fmt(diff)} extra vermogen (${percentDiff}% meer)`;
+      message = t('comparison.realEstateBetter', { diff: fmt(diff), percent: percentDiff });
     } else if (diff < 0) {
-      message = `<strong style="color:#f87171">✗ Enkel sparen is beter</strong><br/>
-        +${fmt(Math.abs(diff))} extra vermogen (${Math.abs(percentDiff)}% meer)`;
+      message = t('comparison.savingBetter', { diff: fmt(Math.abs(diff)), percent: Math.abs(percentDiff) });
     } else {
-      message = `<strong style="color:#facc15">= Gelijk</strong><br/>
-        Beide scenario's resulteren in hetzelfde vermogen`;
+      message = t('comparison.equal');
     }
     summaryEl.innerHTML = message;
   }
@@ -737,7 +990,7 @@ function render(){
   const outSavingsOnly = computeSavingsOnly(params);
 
   setText("#subtitle",
-    `${params.horizonYears} jaar • budget ${fmt(params.monthlyBudget)}/m • sparen ${Number(params.saving.annualRatePct).toFixed(1)}% • vastgoed ${Number(params.realEstate.annualGrowthPct).toFixed(2)}%`
+    t('subtitleTemplate', { horizon: params.horizonYears, budget: fmt(params.monthlyBudget), saving: Number(params.saving.annualRatePct).toFixed(1), growth: Number(params.realEstate.annualGrowthPct).toFixed(2) })
   );
 
   setText("#kpiSetAside", fmt(out.setAside));
@@ -764,9 +1017,9 @@ function render(){
   setText("#kpiTotalWealth", fmt(out.totalWealth));
 
   renderChart([
-    { label: "Sparen", value: out.savingTotal },
-    { label: "Equity", value: out.equity },
-    { label: "Totaal (sparen+equity+huur)", value: out.totalWealth }
+    { label: t('chart.labels.savings'), value: out.savingTotal },
+    { label: t('chart.labels.equity'), value: out.equity },
+    { label: t('chart.labels.total'), value: out.totalWealth }
   ]);
 
   // Savings-only scenario
@@ -781,7 +1034,7 @@ function render(){
   // Update timeline CSV download handler (repopulate latest timeline on click)
   document.querySelector('#downloadTimelineCsv')?.addEventListener('click', () => {
     const timeline = computeYearByYear(params);
-    const rows = [['Year','Vastgoed (met huur)','Vastgoed (geen huur)','Enkel sparen']];
+    const rows = [[t('table.year'), t('table.realEstateWithRent'), t('table.realEstateWithoutRent'), t('table.savingsOnly')]];
     timeline.forEach(r => rows.push([r.year, r.wealthWithRent, r.wealthWithoutRent, r.savingsOnly]));
     const csv = rows.map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -852,13 +1105,13 @@ function render(){
             if (!detail && btn) toggleAmortDetails(yr, btn);
           });
           toggleExpandBtn.setAttribute('aria-pressed','true');
-          toggleExpandBtn.textContent = 'Dichtklappen alles';
+          toggleExpandBtn.textContent = t('amort.collapseAll');
         } else {
           // collapse all
           document.querySelectorAll('tr.amort-details').forEach(d => d.remove());
           document.querySelectorAll('.amort-toggle-btn').forEach(b => { b.setAttribute('aria-expanded','false'); b.textContent='▶'; });
           toggleExpandBtn.setAttribute('aria-pressed','false');
-          toggleExpandBtn.textContent = 'Uitklappen alles';
+          toggleExpandBtn.textContent = t('amort.expandAll');
         }
       };
     }
@@ -884,14 +1137,14 @@ function render(){
             <td class="numeric">${fmt(m.payment)}</td>
             <td class="numeric">${fmt(m.endBalance)}</td>
           </tr>
-        `).join('') : `<tr><td colspan="6" style="text-align:center; padding:8px 0; color:var(--muted);">Lening volledig afbetaald</td></tr>`;
+        `).join('') : `<tr><td colspan="6" style="text-align:center; padding:8px 0; color:var(--muted);">${t('amort.loanFullyPaid')}</td></tr>`;
 
       const detailHtml = `
         <tr class="amort-details" data-year="${year}">
           <td colspan="6">
             <div style="overflow:auto;">
               <table class="nested-table" aria-label="Maandelijkse amortisatie">
-                <thead><tr><th>Maand</th><th>Startsald</th><th>Rente</th><th>Kapitaal</th><th>Betaling</th><th>Eindsaldo</th></tr></thead>
+                <thead><tr><th>${t('table.month')}</th><th>${t('amort.startBalance')}</th><th>${t('amort.interest')}</th><th>${t('amort.principal')}</th><th>${t('amort.payment')}</th><th>${t('amort.endBalance')}</th></tr></thead>
                 <tbody>
                   ${rowsHtml}
                 </tbody>
@@ -922,27 +1175,26 @@ function render(){
       monthlyWrapper.style.display = 'block';
       renderMonthlyTable(computeMonthlyBreakdownForYear(params, defaultYear));
       const heading = document.querySelector('#monthlyHeading');
-      if (heading) heading.textContent = `Maandelijkse breakdown — Jaar ${defaultYear}`;
+      if (heading) heading.textContent = t('monthly.heading', { year: defaultYear });
     }
 
-    // Use .onchange to avoid duplicate handlers
-    monthlyYearSelect.setAttribute('aria-label', 'Selecteer jaar voor maandelijkse breakdown');
+    // Handle year change
     monthlyYearSelect.onchange = (e)=>{
       const y = Number(e.target.value || 1);
       const months = computeMonthlyBreakdownForYear(params, y);
       renderMonthlyTable(months);
       const heading = document.querySelector('#monthlyHeading');
-      if (heading) heading.textContent = `Maandelijkse breakdown — Jaar ${y}`;
+      if (heading) heading.textContent = t('monthly.heading', { year: y });
     };
 
     // Export monthly CSV
     const exportMonthlyBtn = document.querySelector('#exportMonthlyCsv');
     if (exportMonthlyBtn){
-      exportMonthlyBtn.setAttribute('aria-label', 'Exporteer maandelijkse breakdown als CSV');
+      exportMonthlyBtn.setAttribute('aria-label', t('monthly.exportCsvLabel') || 'Exporteer maandelijkse breakdown als CSV');
       exportMonthlyBtn.onclick = ()=>{
         const y = Number(monthlyYearSelect?.value || 1);
         const months = computeMonthlyBreakdownForYear(params, y);
-        const rows = [['Maand','Huur bruto','Netto huur','Lening (mnd)','Netto cashflow']];
+        const rows = [[t('table.month') || 'Maand','Huur bruto','Netto huur','Lening (mnd)','Netto cashflow']];
         months.forEach(m => rows.push([m.month, m.grossMonthly.toFixed(2), m.netRent.toFixed(2), m.loanPayment.toFixed(2), m.netCash.toFixed(2)]));
         const csv = rows.map(r => r.join(',')).join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -1024,9 +1276,9 @@ function getShareUrl(){
 function copyLink(){
   const url = getShareUrl();
   navigator.clipboard?.writeText(url).then(()=>{
-    setText('#copyStatus','Link gekopieerd');
+    setText('#copyStatus', t('copy.linkCopied'));
     setTimeout(()=> setText('#copyStatus',''), 2500);
-  }).catch(()=>{ alert('Copy failed - here is the link:\n' + url); });
+  }).catch(()=>{ alert(t('copy.copyFailed') + '\n' + url); });
 }
 
 function exportCSV(){
@@ -1034,17 +1286,17 @@ function exportCSV(){
   const timeline = computeYearByYear(params);
   const rows = [];
   rows.push(["Key","Value"]);
-  rows.push(["Horizon (jaren)", params.horizonYears]);
-  rows.push(["Maandbudget", params.monthlyBudget]);
-  rows.push(["Huidig spaargeld", fmt(params.cash.now)]);
-  rows.push(["Aankoopprijs", fmt(params.realEstate.price)]);
-  rows.push(["Aankoopkosten (%)", (Number(params.realEstatePurchaseCostPct||0)*100).toFixed(1) + "%"]);
-  rows.push(["Aankoopkosten (EUR)", fmt(out.purchaseCost)]);
-  rows.push(["Totale aankoop", fmt(out.totalCost)]);
-  rows.push(["Totale vermogen (vastgoed)", fmt(out.totalWealth)]);
-  rows.push(["Totale vermogen (enkel sparen)", fmt(computeSavingsOnly(params).totalWealth)]);
+  rows.push([t('csv.horizon'), params.horizonYears]);
+  rows.push([t('csv.monthlyBudget'), params.monthlyBudget]);
+  rows.push([t('csv.cashNow'), fmt(params.cash.now)]);
+  rows.push([t('csv.realEstatePrice'), fmt(params.realEstate.price)]);
+  rows.push([t('csv.purchaseCostPct'), (Number(params.realEstatePurchaseCostPct||0)*100).toFixed(1) + "%"]);
+  rows.push([t('csv.purchaseCost'), fmt(out.purchaseCost)]);
+  rows.push([t('csv.totalPurchase'), fmt(out.totalCost)]);
+  rows.push([t('csv.totalWealth'), fmt(out.totalWealth)]);
+  rows.push([t('csv.totalWealthSavings'), fmt(computeSavingsOnly(params).totalWealth)]);
   rows.push([]);
-  rows.push(["Year","Vastgoed (met huur)","Vastgoed (geen huur)","Enkel sparen"]);
+  rows.push([t('table.year'), t('table.realEstateWithRent'), t('table.realEstateWithoutRent'), t('table.savingsOnly')]);
   timeline.forEach(r=> rows.push([r.year, r.wealthWithRent, r.wealthWithoutRent, r.savingsOnly]));
 
   const csv = rows.map(r => r.map(c => typeof c === 'number' ? c : '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
@@ -1087,7 +1339,7 @@ document.querySelector('#exportCsvBtn')?.addEventListener('click', exportCSV);
 
 // Export cashflow CSV
 document.querySelector('#exportCashflowCsv')?.addEventListener('click', ()=>{
-  const rows = [['Year','GrossRent','NetRent','LoanPaidYear','NetCash']];
+  const rows = [[t('table.year'), t('cashflow.grossRent'), t('cashflow.netRent'), t('cashflow.loanYear'), t('cashflow.netCash')]];
   lastCashflow.forEach(r => rows.push([r.year, r.grossAnnual.toFixed(2), r.netRent.toFixed(2), r.loanPaymentThisYear.toFixed(2), r.netCash.toFixed(2)]));
   const csv = rows.map(r => r.join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -1097,7 +1349,7 @@ document.querySelector('#exportCashflowCsv')?.addEventListener('click', ()=>{
 
 // Export amortization CSV
 document.querySelector('#exportAmortCsv')?.addEventListener('click', ()=>{
-  const rows = [['Year','StartBalance','Paid','Interest','Principal','EndBalance']];
+  const rows = [[t('table.year'), t('amort.startBalance'), t('amort.paid'), t('amort.interest'), t('amort.principal'), t('amort.endBalance')]];
   lastAmort.forEach(r => rows.push([r.year, r.startBalance.toFixed(2), r.paid.toFixed(2), r.interest.toFixed(2), r.principal.toFixed(2), r.endBalance.toFixed(2)]));
   const csv = rows.map(r => r.join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
