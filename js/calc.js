@@ -1,5 +1,5 @@
 // calc.js
-import { clamp } from './utils.js';
+import { clamp, memoize } from './utils.js';
 
 export function setAsideEuro(p){
   return Math.max(0, (p.cash.now || 0) * (p.cash.setAsidePct || 0));
@@ -314,3 +314,24 @@ export function computeMonthlyAmortizationForYear(p, year){
   }
   return months;
 }
+
+// Memoized versions of expensive functions
+let _computeMemoized, _computeSavingsOnlyMemoized, _computeYearByYearMemoized, _computeCashflowAndAmortizationMemoized;
+
+export function computeMemoized(p){
+  if (!_computeMemoized) _computeMemoized = memoize(compute);
+  return _computeMemoized(p);
+}
+export function computeSavingsOnlyMemoized(p){
+  if (!_computeSavingsOnlyMemoized) _computeSavingsOnlyMemoized = memoize(computeSavingsOnly);
+  return _computeSavingsOnlyMemoized(p);
+}
+export function computeYearByYearMemoized(p){
+  if (!_computeYearByYearMemoized) _computeYearByYearMemoized = memoize(computeYearByYear);
+  return _computeYearByYearMemoized(p);
+}
+export function computeCashflowAndAmortizationMemoized(p){
+  if (!_computeCashflowAndAmortizationMemoized) _computeCashflowAndAmortizationMemoized = memoize(computeCashflowAndAmortization);
+  return _computeCashflowAndAmortizationMemoized(p);
+}
+

@@ -1,75 +1,33 @@
-// main.js
+// main.js - Orchestrates UI rendering and event delegation
 import { t, applyTranslations, initLanguageSelector, setLang } from './i18n.js';
+import { fmt, deepClone, clamp } from './utils.js';
 import { DEFAULTS } from './defaults.js';
-import { fmt, clamp, deepClone, getByPath, setByPath, coerceInputValue } from './utils.js';
 import {
-  compute,
-  computeSavingsOnly,
-  computeYearByYear,
-  computeCashflowAndAmortization,
+  computeMemoized,
+  computeSavingsOnlyMemoized,
+  computeYearByYearMemoized,
+  computeCashflowAndAmortizationMemoized,
   computeMonthlyBreakdownForYear,
   computeMonthlyAmortizationForYear
 } from './calc.js';
+import { params, encodeParamsToHash, decodeParamsFromHash, applyParamsFromHash, getShareUrl, syncInputsFromParams } from './state.js';
+import { bindInputs, setRenderCallback } from './handlers.js';
 
-const params = deepClone(DEFAULTS);
 let lastCashflow = [];
 let lastAmort = [];
 let previousValues = {};
 
-function syncInputsFromParams(){
-  document.querySelectorAll('[data-path]').forEach((el) => {
-    const path = el.dataset.path;
-    const v = getByPath(params, path);
-    if (el.type === 'checkbox') el.checked = !!v;
-    else if (v !== undefined) el.value = v;
-  });
-}
-
-function bindInputs(){
-  document.querySelectorAll('[data-path]').forEach((el) => {
-    const path = el.dataset.path;
-    const handler = () => {
-      setByPath(params, path, coerceInputValue(el));
-      render();
-    };
-    el.addEventListener('input', handler);
-    el.addEventListener('change', handler);
-  });
-}
-
-function encodeParamsToHash(p){
-  try{
-    return btoa(unescape(encodeURIComponent(JSON.stringify(p))));
-  }catch(e){
-    return encodeURIComponent(JSON.stringify(p));
+// DOM Cache: store frequently accessed elements
+const domCache = {};
+function cacheDOM(selector){
+  if (!domCache[selector]){
+    domCache[selector] = document.querySelector(selector);
   }
-}
-function decodeParamsFromHash(s){
-  try{
-    return JSON.parse(decodeURIComponent(escape(atob(s))));
-  }catch(e){
-    try{ return JSON.parse(decodeURIComponent(s)); }catch(e2){ return null; }
-  }
-}
-
-function applyParamsFromHash(){
-  const h = location.hash.slice(1);
-  if (!h) return false;
-  const decoded = decodeParamsFromHash(h);
-  if (!decoded) return false;
-  Object.keys(params).forEach(k => delete params[k]);
-  Object.assign(params, decoded);
-  syncInputsFromParams();
-  return true;
-}
-
-function getShareUrl(){
-  const hash = encodeParamsToHash(params);
-  return location.origin + location.pathname + '#' + hash;
+  return domCache[selector];
 }
 
 function setText(sel, text){
-  const el = document.querySelector(sel);
+  const el = cacheDOM(sel);
   if (!el) return;
   const prev = previousValues[sel];
   const changed = prev !== undefined && prev !== text;
@@ -84,7 +42,7 @@ function setText(sel, text){
 }
 
 function renderTimelineChart(p){
-  const timeline = computeYearByYear(p);
+  const timeline = computeYearByYearMemoized(p);
   let breakevenWithRent = null;
   let breakevenWithoutRent = null;
   for (let i = 1; i < timeline.length; i++) {
@@ -306,8 +264,8 @@ function renderComparisonCharts(out, outSavingsOnly){
 
 function render(){
   document.title = t('title');
-  const out = compute(params);
-  const outSavingsOnly = computeSavingsOnly(params);
+  const out = computeMemoized(params);
+  const outSavingsOnly = computeSavingsOnlyMemoized(params);
   setText('#subtitle', t('subtitleTemplate', { horizon: params.horizonYears, budget: fmt(params.monthlyBudget), saving: Number(params.saving.annualRatePct).toFixed(1), growth: Number(params.realEstate.annualGrowthPct).toFixed(2) }));
   setText('#kpiSetAside', fmt(out.setAside));
   setText('#kpiInvestable', fmt(out.investable));
@@ -333,7 +291,7 @@ function render(){
   setText('#kpiExtraSaved', fmt(out.extraSavedFromBudget));
   setText('#kpiTotalMonthlySaving', fmt(out.totalMonthlySaving));
   
-  const { cashflow, amort } = computeCashflowAndAmortization(params);
+  const { cashflow, amort } = computeCashflowAndAmortizationMemoized(params);
   lastCashflow = cashflow;
   lastAmort = amort;
   const totalInterest = amort.reduce((sum, yr) => sum + yr.interest, 0);
@@ -344,7 +302,7 @@ function render(){
   // Calculate impact of +0.1% interest rate change
   const paramsHigherRate = deepClone(params);
   paramsHigherRate.loan.annualRatePct = (paramsHigherRate.loan.annualRatePct || 0) + 0.1;
-  const { amort: amortHigherRate } = computeCashflowAndAmortization(paramsHigherRate);
+  const { amort: amortHigherRate } = computeCashflowAndAmortizationMemoized(paramsHigherRate);
   const totalInterestHigherRate = amortHigherRate.reduce((sum, yr) => sum + yr.interest, 0);
   const interestDelta = totalInterestHigherRate - totalInterest;
   setText('#kpiInterestSensitivity', fmt(interestDelta));
@@ -597,8 +555,8 @@ function copyLink(){
 }
 
 function exportCSV(){
-  const out = compute(params);
-  const timeline = computeYearByYear(params);
+  const out = computeMemoized(params);
+  const timeline = computeYearByYearMemoized(params);
   const rows = [];
   rows.push(['Key','Value']);
   rows.push([t('csv.horizon'), params.horizonYears]);
@@ -652,7 +610,7 @@ function exportAmortCsv(){
 }
 
 function downloadTimelineCsv(){
-  const timeline = computeYearByYear(params);
+  const timeline = computeYearByYearMemoized(params);
   const rows = [[t('table.year'), t('table.realEstateWithRent'), t('table.realEstateWithoutRent'), t('table.savingsOnly')]];
   timeline.forEach(r => rows.push([r.year, r.wealthWithRent, r.wealthWithoutRent, r.savingsOnly]));
   const csv = rows.map(r => r.join(',')).join('\n');
@@ -670,6 +628,8 @@ function toggleTimelineTable(){
 function init(){
   initLanguageSelector();
   applyTranslations();
+  // Set render callback for handlers module
+  setRenderCallback(render);
   bindInputs();
   applyParamsFromHash();
   syncInputsFromParams();
@@ -693,12 +653,12 @@ function init(){
     const clamped = Math.max(-2, Math.min(2, adjustment));
     if (rateInput) rateInput.value = clamped.toFixed(2);
     
-    const { amort: currentAmort } = computeCashflowAndAmortization(params);
+    const { amort: currentAmort } = computeCashflowAndAmortizationMemoized(params);
     const currentInterest = currentAmort.reduce((sum, yr) => sum + yr.interest, 0);
     
     const paramsAdjusted = deepClone(params);
     paramsAdjusted.loan.annualRatePct = (paramsAdjusted.loan.annualRatePct || 0) + clamped;
-    const { amort: adjustedAmort } = computeCashflowAndAmortization(paramsAdjusted);
+    const { amort: adjustedAmort } = computeCashflowAndAmortizationMemoized(paramsAdjusted);
     const adjustedInterest = adjustedAmort.reduce((sum, yr) => sum + yr.interest, 0);
     
     const impactDelta = adjustedInterest - currentInterest;

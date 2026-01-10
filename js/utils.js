@@ -26,3 +26,22 @@ export function coerceInputValue(el){
   const v = Number(el.value);
   return Number.isFinite(v) ? v : 0;
 }
+
+export function debounce(fn, delay){
+  let timeoutId = null;
+  return function(...args){
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+}
+
+export function memoize(fn){
+  const cache = new Map();
+  return function(...args){
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
