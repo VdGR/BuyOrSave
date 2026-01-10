@@ -1,3 +1,13 @@
+/* Warn highlight for KPI values */
+.kpiV.warn {
+  color: #f43f5e !important;
+  font-weight: bold;
+  animation: pulse-update 0.6s;
+}
+.kpi.warn {
+  background: rgba(244,63,94,0.12);
+  border-color: rgba(244,63,94,0.3);
+}
 :root{
   --bg:#0b1020;
   --text:#e9ecff;

@@ -1,5 +1,6 @@
 // main.js
 import { t, applyTranslations, initLanguageSelector, setLang } from './i18n.js';
+import { DEFAULTS } from './defaults.js';
 import { fmt, clamp, deepClone, getByPath, setByPath, coerceInputValue } from './utils.js';
 import {
   compute,
@@ -9,25 +10,6 @@ import {
   computeMonthlyBreakdownForYear,
   computeMonthlyAmortizationForYear
 } from './calc.js';
-
-const DEFAULTS = {
-  horizonYears: 25,
-  monthlyBudget: 1000,
-  cash: { now: 55250, setAsidePct: 0.15 },
-  saving: { annualRatePct: 2.0 },
-  realEstate: { price: 220000, annualGrowthPct: 3 },
-  realEstatePurchaseCostPct: 0.10,
-  loan: { annualRatePct: 4.0, years: 25 },
-  rent: {
-    enabled: true,
-    startAfterYears: 2,
-    monthlyRent: 800,
-    vacancyRate: 0.25,
-    insuranceRate: 0.10,
-    taxRate: 0.10,
-    maintenanceRate: 0.20
-  }
-};
 
 const params = deepClone(DEFAULTS);
 let lastCashflow = [];
@@ -336,8 +318,37 @@ function render(){
   setText('#kpiTotalPurchase', fmt(out.totalCost));
   setText('#kpiMonthlyBudget', fmt(out.budget));
   setText('#kpiLoanMonthly', fmt(out.loanMonthly));
+    // Highlight if monthly payment exceeds budget
+    const loanMonthlyEl = document.querySelector('#kpiLoanMonthly');
+    const budget = out.budget || 0;
+    if (loanMonthlyEl) {
+      if (out.loanMonthly > budget && budget > 0) {
+        loanMonthlyEl.classList.add('warn');
+        loanMonthlyEl.setAttribute('title', t('warn.loanExceedsBudget'));
+      } else {
+        loanMonthlyEl.classList.remove('warn');
+        loanMonthlyEl.removeAttribute('title');
+      }
+    }
   setText('#kpiExtraSaved', fmt(out.extraSavedFromBudget));
   setText('#kpiTotalMonthlySaving', fmt(out.totalMonthlySaving));
+  
+  const { cashflow, amort } = computeCashflowAndAmortization(params);
+  lastCashflow = cashflow;
+  lastAmort = amort;
+  const totalInterest = amort.reduce((sum, yr) => sum + yr.interest, 0);
+  const monthlyInterest = totalInterest / (params.horizonYears * 12);
+  setText('#kpiTotalInterest', fmt(totalInterest));
+  setText('#kpiMonthlyInterest', fmt(monthlyInterest));
+  
+  // Calculate impact of +0.1% interest rate change
+  const paramsHigherRate = deepClone(params);
+  paramsHigherRate.loan.annualRatePct = (paramsHigherRate.loan.annualRatePct || 0) + 0.1;
+  const { amort: amortHigherRate } = computeCashflowAndAmortization(paramsHigherRate);
+  const totalInterestHigherRate = amortHigherRate.reduce((sum, yr) => sum + yr.interest, 0);
+  const interestDelta = totalInterestHigherRate - totalInterest;
+  setText('#kpiInterestSensitivity', fmt(interestDelta));
+  
   setText('#kpiSaving', fmt(out.savingTotal));
   setText('#kpiRE', fmt(out.reValue));
   setText('#kpiLoanBalance', fmt(out.loanBalance));
@@ -353,10 +364,6 @@ function render(){
   setText('#savingsOnlyTotal', fmt(outSavingsOnly.savingTotal));
   renderComparisonCharts(out, outSavingsOnly);
   renderTimelineChart(params);
-
-  const { cashflow, amort } = computeCashflowAndAmortization(params);
-  lastCashflow = cashflow;
-  lastAmort = amort;
 
   const cashTbody = document.querySelector('#cashflowTable tbody');
   if (cashTbody){
@@ -475,6 +482,71 @@ function render(){
     card.setAttribute('title', `${label}: ${val}`);
     card.style.cursor = 'help';
   });
+
+  // Loan-to-income and feasibility KPIs
+  const income = Number(params.income) || 0;
+  const loanMonthly = out.loanMonthly || 0;
+  // Loan as % of income
+  let pctIncome = income > 0 ? (loanMonthly / income) * 100 : 0;
+  setText('#kpiLoanPctIncome', income > 0 ? pctIncome.toFixed(1) + '%' : '-');
+  // Max allowed loan payment (40% and 50%)
+  let maxAllowed40 = income * 0.4;
+  let maxAllowed50 = income * 0.5;
+  setText('#kpiMaxAllowedLoan', income > 0 ? `${fmt(maxAllowed40)} (40%) / ${fmt(maxAllowed50)} (50%)` : '-');
+  // Highlight if above 40% or 50%
+  const pctIncomeEl = document.querySelector('#kpiLoanPctIncome');
+  if (pctIncomeEl) {
+    pctIncomeEl.classList.remove('warn');
+    pctIncomeEl.removeAttribute('title');
+    if (pctIncome > 50) {
+      pctIncomeEl.classList.add('warn');
+      pctIncomeEl.setAttribute('title', t('warn.loanAbove50'));
+    } else if (pctIncome > 40) {
+      pctIncomeEl.classList.add('warn');
+      pctIncomeEl.setAttribute('title', t('warn.loanAbove40'));
+    }
+  }
+  // Max loan possible (income and 80% of property)
+  const propertyValue = Number(params.realEstate?.price) || 0;
+  const maxLoan80 = propertyValue * 0.8;
+  // Calculate max loan by income (using annuity formula, 40% cap)
+  let maxLoanByIncome = 0;
+  if (income > 0 && params.loan?.annualRatePct && params.loan?.years) {
+    const r = (Number(params.loan.annualRatePct) || 0) / 100 / 12;
+    const n = (Number(params.loan.years) || 0) * 12;
+    if (r > 0 && n > 0) {
+      maxLoanByIncome = maxAllowed40 * ((1 - Math.pow(1 + r, -n)) / r);
+    }
+  }
+  const maxLoanPossible = Math.min(maxLoan80, maxLoanByIncome || maxLoan80);
+  setText('#kpiMaxLoanPossible', (maxLoanPossible > 0) ? fmt(maxLoanPossible) : '-');
+  // Feasibility checks
+  const principal = out.principal || 0;
+  const downPayment = out.downPayment || 0;
+  const purchaseCost = out.purchaseCost || 0;
+  const reasons = [];
+  if (principal > maxLoan80 + 1) {
+    reasons.push(t('warn.above80', { needed: fmt(principal - maxLoan80) }));
+  }
+  if (maxLoanByIncome > 0 && principal > maxLoanByIncome + 1) {
+    reasons.push(t('warn.notEnoughIncome', { max: fmt(maxAllowed40), pay: fmt(loanMonthly) }));
+  }
+  if (downPayment < purchaseCost - 1) {
+    reasons.push(t('warn.costsNotCovered'));
+  }
+  const feasWarnEl = document.querySelector('#kpiFeasibilityWarn');
+  if (feasWarnEl) {
+    if (reasons.length){
+      feasWarnEl.style.display = '';
+      const inner = feasWarnEl.querySelector('.muted');
+      if (inner) inner.textContent = reasons.join(' ');
+      else feasWarnEl.textContent = reasons.join(' ');
+      feasWarnEl.classList.add('warn');
+    } else {
+      feasWarnEl.style.display = 'none';
+      feasWarnEl.classList.remove('warn');
+    }
+  }
 }
 
 function toggleAmortDetails(year, btn){
@@ -610,6 +682,70 @@ function init(){
   document.querySelector('#downloadTimelineCsv')?.addEventListener('click', downloadTimelineCsv);
   document.querySelector('#toggleTimelineTable')?.addEventListener('click', toggleTimelineTable);
   document.querySelector('#showBreakEven')?.addEventListener('change', ()=> renderTimelineChart(params));
+  
+  // Rate adjustment spinner controls
+  const rateInput = document.querySelector('#rateAdjustmentInput');
+  const rateMinus = document.querySelector('#rateAdjustmentMinus');
+  const ratePlus = document.querySelector('#rateAdjustmentPlus');
+  
+  const updateRateAdjustmentImpact = () => {
+    const adjustment = parseFloat(rateInput?.value || 0);
+    const clamped = Math.max(-2, Math.min(2, adjustment));
+    if (rateInput) rateInput.value = clamped.toFixed(2);
+    
+    const { amort: currentAmort } = computeCashflowAndAmortization(params);
+    const currentInterest = currentAmort.reduce((sum, yr) => sum + yr.interest, 0);
+    
+    const paramsAdjusted = deepClone(params);
+    paramsAdjusted.loan.annualRatePct = (paramsAdjusted.loan.annualRatePct || 0) + clamped;
+    const { amort: adjustedAmort } = computeCashflowAndAmortization(paramsAdjusted);
+    const adjustedInterest = adjustedAmort.reduce((sum, yr) => sum + yr.interest, 0);
+    
+    const impactDelta = adjustedInterest - currentInterest;
+    const monthlyImpactDelta = impactDelta / (params.horizonYears * 12);
+    
+    const impactEl = document.querySelector('#kpiRateAdjustmentImpact');
+    if (impactEl){
+      impactEl.textContent = fmt(impactDelta);
+      impactEl.style.color = impactDelta < 0 ? '#4ade80' : '#f97316';
+    }
+    
+    const monthlyEl = document.querySelector('#kpiRateAdjustmentMonthly');
+    if (!monthlyEl){
+      const wrapper = document.querySelector('#kpiRateAdjustmentImpact')?.parentElement;
+      if (wrapper){
+        const monthlyDisplay = document.createElement('div');
+        monthlyDisplay.id = 'kpiRateAdjustmentMonthly';
+        monthlyDisplay.style.cssText = 'font-size:12px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.06);';
+        monthlyDisplay.innerHTML = '<div class="muted" style="font-size:11px; margin-bottom:4px;" data-i18n="kpi.monthlyRateImpact">Maandelijks gemiddelde</div><div class="kpiV" style="font-size:14px; color:inherit;"></div>';
+        wrapper.appendChild(monthlyDisplay);
+        applyTranslations();
+      }
+    }
+    const monthlyDisplayValue = document.querySelector('#kpiRateAdjustmentMonthly .kpiV');
+    if (monthlyDisplayValue){
+      monthlyDisplayValue.textContent = fmt(monthlyImpactDelta);
+      monthlyDisplayValue.parentElement.style.color = monthlyImpactDelta < 0 ? '#4ade80' : '#f97316';
+    }
+  };
+  
+  if (rateInput){
+    rateInput.addEventListener('input', updateRateAdjustmentImpact);
+    rateInput.addEventListener('change', updateRateAdjustmentImpact);
+  }
+  if (rateMinus){
+    rateMinus.addEventListener('click', () => {
+      if (rateInput) rateInput.value = (parseFloat(rateInput.value) - 0.01).toFixed(2);
+      updateRateAdjustmentImpact();
+    });
+  }
+  if (ratePlus){
+    ratePlus.addEventListener('click', () => {
+      if (rateInput) rateInput.value = (parseFloat(rateInput.value) + 0.01).toFixed(2);
+      updateRateAdjustmentImpact();
+    });
+  }
+  
   applyTranslations();
   render();
 }

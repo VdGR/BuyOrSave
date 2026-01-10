@@ -56,6 +56,10 @@
             <label><i class="fa-solid fa-wallet"></i> <span data-i18n="label.monthlyBudget">Maandbudget (lening + sparen) (€ / maand)</span></label>
             <input type="number" min="0" step="10" data-path="monthlyBudget">
           </div>
+          <div class="field">
+            <label><i class="fa-solid fa-money-bill-wave"></i> <span data-i18n="label.income">Maandinkomen (€ / maand)</span></label>
+            <input type="number" min="0" step="10" data-path="income">
+          </div>
         </div>
         <div class="hint" data-i18n="hint.budgetDistribution">Dit budget wordt automatisch verdeeld: leningbetaling eerst, overschot gaat naar sparen.</div>
       </div>
@@ -183,8 +187,35 @@
           <div class="kpi-section-title">📊 <span data-i18n="kpi.budgetLoan">Maandbudget & Lening</span></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.monthlyBudget">Maandbudget</div><div class="kpiV" id="kpiMonthlyBudget"></div></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.loanMonthly">Lening afbetaling/maand</div><div class="kpiV" id="kpiLoanMonthly"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.loanPctIncome">Leningbetaling / inkomen</div><div class="kpiV" id="kpiLoanPctIncome"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.maxAllowedLoan">Max. toegestane leningbetaling</div><div class="kpiV" id="kpiMaxAllowedLoan"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.maxLoanPossible">Max. lening mogelijk (80% v. prijs & inkomen)</div><div class="kpiV" id="kpiMaxLoanPossible"></div></div>
+          <div class="kpi" id="kpiFeasibilityWarn" style="display:none;"><div class="muted" data-i18n="kpi.feasibilityWarn"></div></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.extraSaved">Overschot → sparen/maand</div><div class="kpiV" id="kpiExtraSaved"></div></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.totalMonthlySaving">Totaal sparen/maand</div><div class="kpiV" id="kpiTotalMonthlySaving"></div></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div class="kpi"><div class="muted" data-i18n="kpi.totalInterest">Totaal rente betaald</div><div class="kpiV" id="kpiTotalInterest"></div></div>
+            <div class="kpi"><div class="muted" style="font-size:11px;" data-i18n="kpi.monthlyInterest">Gemiddeld/maand</div><div class="kpiV" id="kpiMonthlyInterest" style="font-size:16px;"></div></div>
+          </div>
+          <div class="kpi" style="background:rgba(249,115,22,.08); border-color:rgba(249,115,22,.2);"><div class="muted" data-i18n="kpi.interestSensitivity">Impact +0,1% rente</div><div class="kpiV" id="kpiInterestSensitivity" style="color:#f97316;"></div></div>
+        </div>
+
+        <!-- Rate Adjustment Slider -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">🎚️ <span data-i18n="kpi.rateAdjustment">Rente aangepast</span></div>
+          <div class="kpi" style="padding:16px;">
+            <label style="display:block; font-size:12px; margin-bottom:8px;" data-i18n="kpi.rateAdjustmentLabel">Verander rente (%)</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button type="button" id="rateAdjustmentMinus" class="btn" style="flex:0; padding:8px 10px;">−</button>
+              <input type="number" id="rateAdjustmentInput" value="0" step="0.01" min="-2" max="2" style="flex:1; text-align:center; font-weight:700;">
+              <button type="button" id="rateAdjustmentPlus" class="btn" style="flex:0; padding:8px 10px;">+</button>
+            </div>
+            <div style="text-align:center; margin-top:8px; font-size:11px; color:rgba(233,236,255,.5);">−2% to +2%</div>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.06);">
+              <div class="muted" style="font-size:11px; margin-bottom:6px;" data-i18n="kpi.impactPreview">Impact op totaal rente</div>
+              <div class="kpiV" id="kpiRateAdjustmentImpact" style="color:#60a5fa;">€ 0</div>
+            </div>
+          </div>
         </div>
 
         <!-- Na horizon (25 jaar) -->
