@@ -182,22 +182,33 @@
           <div class="kpi"><div class="muted" data-i18n="kpi.totalPurchase">Totale aankoop</div><div class="kpiV" id="kpiTotalPurchase"></div></div>
         </div>
 
-        <!-- Maandbudget & Lening -->
+        <!-- Budget -->
         <div class="kpi-section">
-          <div class="kpi-section-title">📊 <span data-i18n="kpi.budgetLoan">Maandbudget & Lening</span></div>
+          <div class="kpi-section-title">📊 <span data-i18n="kpi.section.budget">Budget</span></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.monthlyBudget">Maandbudget</div><div class="kpiV" id="kpiMonthlyBudget"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.extraSaved">Overschot → sparen/maand</div><div class="kpiV" id="kpiExtraSaved"></div></div>
+        </div>
+
+        <!-- Loan -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">💳 <span data-i18n="kpi.section.loan">Lening</span></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.loanMonthly">Lening afbetaling/maand</div><div class="kpiV" id="kpiLoanMonthly"></div></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.loanPctIncome">Leningbetaling / inkomen</div><div class="kpiV" id="kpiLoanPctIncome"></div></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.maxAllowedLoan">Max. toegestane leningbetaling</div><div class="kpiV" id="kpiMaxAllowedLoan"></div></div>
           <div class="kpi"><div class="muted" data-i18n="kpi.maxLoanPossible">Max. lening mogelijk (80% v. prijs & inkomen)</div><div class="kpiV" id="kpiMaxLoanPossible"></div></div>
-          <div class="kpi" id="kpiFeasibilityWarn" style="display:none;"><div class="muted" data-i18n="kpi.feasibilityWarn"></div></div>
-          <div class="kpi"><div class="muted" data-i18n="kpi.extraSaved">Overschot → sparen/maand</div><div class="kpiV" id="kpiExtraSaved"></div></div>
-          <div class="kpi"><div class="muted" data-i18n="kpi.totalMonthlySaving">Totaal sparen/maand</div><div class="kpiV" id="kpiTotalMonthlySaving"></div></div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div class="kpi"><div class="muted" data-i18n="kpi.totalInterest">Totaal rente betaald</div><div class="kpiV" id="kpiTotalInterest"></div></div>
             <div class="kpi"><div class="muted" style="font-size:11px;" data-i18n="kpi.monthlyInterest">Gemiddeld/maand</div><div class="kpiV" id="kpiMonthlyInterest" style="font-size:16px;"></div></div>
           </div>
           <div class="kpi" style="background:rgba(249,115,22,.08); border-color:rgba(249,115,22,.2);"><div class="muted" data-i18n="kpi.interestSensitivity">Impact +0,1% rente</div><div class="kpiV" id="kpiInterestSensitivity" style="color:#f97316;"></div></div>
+          <div class="kpi" id="kpiFeasibilityWarn" style="display:none;"><div class="muted" data-i18n="kpi.feasibilityWarn"></div></div>
+        </div>
+
+        <!-- Savings -->
+        <div class="kpi-section">
+          <div class="kpi-section-title">🐖 <span data-i18n="kpi.section.savings">Sparen</span></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.totalMonthlySaving">Totaal sparen/maand</div><div class="kpiV" id="kpiTotalMonthlySaving"></div></div>
+          <div class="kpi"><div class="muted" data-i18n="kpi.saving">Sparen (na horizon)</div><div class="kpiV" id="kpiSaving"></div></div>
         </div>
 
         <!-- Rate Adjustment Slider -->
